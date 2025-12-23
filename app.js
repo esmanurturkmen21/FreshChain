@@ -588,10 +588,10 @@ async function verifyBatch() {
 
 /* SIGNED QR */
 async function generateSignedQR() {
-  const sig = await signer.signMessage(`FreshChain:${p_id.value}`);
-  const url = location.origin + location.pathname + `?trackId=${p_id.value}&sig=${sig}`;
-  qrBox.innerHTML = "";
-  new QRCode(qrBox, { text: url, width: 160, height: 160 });
+    const sig = await signer.signMessage(`FreshChain:${p_id.value}`);
+    const url = location.origin + "/public/history.html?trackId=" + p_id.value + "&sig=" + sig;
+    qrBox.innerHTML = "";
+    new QRCode(qrBox, { text: url, width: 180, height: 180 });
 }
 
 /* DARK MODE */
