@@ -483,69 +483,82 @@ const ABI = [
 	}
 ];
 
+
+/* ================= WALLET ================= */
 async function connectWallet() {
-    provider = new ethers.BrowserProvider(window.ethereum);
-    signer = await provider.getSigner();
-    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+  if (!window.ethereum) {
+    alert("MetaMask required");
+    return;
+  }
 
-    const acc = await signer.getAddress();
-    account.innerText = acc;
+  provider = new ethers.BrowserProvider(window.ethereum);
+  signer = await provider.getSigner();
+  contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
-    const admin = await contract.owner();
-    roleInfo.innerText =
-        acc.toLowerCase() === admin.toLowerCase()
-        ? "Role: Administrator"
-        : "Role: Authorized User";
+  const acc = await signer.getAddress();
+  document.getElementById("account").innerText = acc;
+
+  const admin = await contract.owner();
+  document.getElementById("roleInfo").innerText =
+    acc.toLowerCase() === admin.toLowerCase()
+      ? "Role: Administrator"
+      : "Role: Authorized User";
 }
 
-async function registerRole() {
-    const map = {
-        producer: contract.registerProducer,
-        transporter: contract.registerTransporter,
-        distributor: contract.registerDistributor,
-        retailer: contract.registerRetailer
-    };
-    await (await map[adminRole.value](adminAddr.value)).wait();
-    alert("Role registered");
-}
-
-async function createBatch() {
-    await (await contract.createBatch(p_id.value, p_name.value, p_qty.value)).wait();
-    alert("Batch created");
-}
-
-async function transferOwnership() {
-    await (await contract.transferOwnership(d_id.value, d_to.value)).wait();
-    alert("Ownership transferred");
-}
-
-async function addSensorData() {
-    await (await contract.addSensorData(t_id.value, temp.value, hum.value, loc.value)).wait();
-    alert("Sensor data added");
-}
-
-async function inspectBatch() {
-    await (await contract.inspectBatch(r_id.value, passed.value === "true")).wait();
-    alert("Inspection completed");
-}
-
+/* ================= LIST BATCHES ================= */
 async function listBatches() {
-    const ids = await contract.listBatches();
-    batchList.innerText = ids.length ? ids.map(i => i.toString()).join(", ") : "No batches";
+  const ids = await contract.listBatches();
+  const select = document.getElementById("batchSelect");
+
+  select.innerHTML = `<option value="">Select Batch</option>`;
+  ids.forEach(id => {
+    const opt = document.createElement("option");
+    opt.value = id.toString();
+    opt.textContent = id.toString();
+    select.appendChild(opt);
+  });
 }
 
-async function generateSignedQR() {
-    const sig = await signer.signMessage(`FreshChain:${p_id.value}`);
-    const url = location.origin + "/public/history.html?trackId=" + p_id.value + "&sig=" + sig;
-    qrBox.innerHTML = "";
-    new QRCode(qrBox, { text: url, width: 180, height: 180 });
+/* ================= ADMIN ================= */
+async function registerRole() {
+  const role = document.getElementById("adminRole").value;
+  const addr = document.getElementById("adminAddr").value;
+
+  const map = {
+    producer: contract.registerProducer,
+    transporter: contract.registerTransporter,
+    distributor: contract.registerDistributor,
+    retailer: contract.registerRetailer
+  };
+
+  await (await map[role](addr)).wait();
+  alert("Role registered");
 }
 
-/* Dark mode */
+/* ================= PRODUCER ================= */
+async function createBatch() {
+  const id = document.getElementById("newBatchId").value;
+  const name = document.getElementById("newBatchName").value;
+  const qty = document.getElementById("newBatchQty").value;
+
+  await (await contract.createBatch(id, name, qty)).wait();
+  alert("Batch created");
+  listBatches();
+}
+
+/* ================= PUBLIC VERIFICATION ================= */
+async function verifyBatch() {
+  const id = document.getElementById("publicTrackId").value;
+
+  const data = await contract.getBatchHistory(id);
+  const replacer = (k, v) => typeof v === "bigint" ? v.toString() : v;
+
+  document.getElementById("result").innerText =
+    JSON.stringify(data, replacer, 2);
+}
+
+/* ================= DARK MODE ================= */
 function toggleDarkMode() {
-    document.body.classList.toggle("dark");
-    localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+  document.body.classList.toggle("dark");
 }
-window.addEventListener("load", () => {
-    if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
-});
+
