@@ -96,16 +96,10 @@
 <!-- PUBLIC VERIFY -->
 <section class="card">
   <h2>Public Product Verification</h2>
-
-  <select id="batchId">
-    <option value="">Select Batch ID</option>
-  </select>
-
-  <button onclick="getHistory()">Get Blockchain History</button>
-
+  <input id="publicTrackId" placeholder="Enter Track ID">
+  <button onclick="verifyBatch()">Get History</button>
   <pre id="result">No data loaded.</pre>
 </section>
-
 
 <footer>
   <p>FreshChain – Version 2 Final Implementation</p>
