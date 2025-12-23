@@ -588,11 +588,51 @@ async function verifyBatch() {
 
 /* SIGNED QR */
 async function generateSignedQR() {
-    const sig = await signer.signMessage(`FreshChain:${p_id.value}`);
-    const url = location.origin + "/public/history.html?trackId=" + p_id.value + "&sig=" + sig;
+  try {
+    if (!signer) {
+      alert("Please connect your wallet first.");
+      return;
+    }
+
+    if (!p_id.value) {
+      alert("Please enter Batch ID first.");
+      return;
+    }
+
+    const message = `FreshChain:${p_id.value}`;
+    const sig = await signer.signMessage(message);
+
+    // TRUE URL FOR GITHUB PAGES 
+    const url =
+      window.location.origin +
+      "/FreshChain/index.html" +
+      "?trackId=" +
+      p_id.value +
+      "&sig=" +
+      sig;
+
     qrBox.innerHTML = "";
-    new QRCode(qrBox, { text: url, width: 180, height: 180 });
+    new QRCode(qrBox, {
+      text: url,
+      width: 180,
+      height: 180
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert("QR generation failed: " + err.message);
+  }
 }
+}
+window.addEventListener("load", async () => {
+  const params = new URLSearchParams(window.location.search);
+  const tid = params.get("trackId");
+
+  if (tid) {
+    publicTrackId.value = tid;
+    await verifyBatch();
+  }
+});
 
 /* DARK MODE */
 function toggleDarkMode() {
