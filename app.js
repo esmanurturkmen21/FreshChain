@@ -493,11 +493,24 @@ async function connectWallet() {
   account.innerText = acc;
 
   const admin = await contract.owner();
-  roleInfo.innerText =
-    acc.toLowerCase() === admin.toLowerCase()
-      ? "Role: Administrator"
-      : "Role: Authorized User";
+
+  let role = "Unregistered / Customer";
+
+  if (acc.toLowerCase() === admin.toLowerCase()) {
+    role = "Administrator";
+  } else if (await contract.producers(acc)) {
+    role = "Producer";
+  } else if (await contract.distributors(acc)) {
+    role = "Distributor";
+  } else if (await contract.transporters(acc)) {
+    role = "Transporter";
+  } else if (await contract.retailers(acc)) {
+    role = "Retailer";
+  }
+
+  roleInfo.innerText = `Role: ${role}`;
 }
+
 
 /* LOAD BATCHES */
 async function loadBatches() {
