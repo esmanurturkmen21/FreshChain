@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FreshChain – Web3 Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Gradient Logo Text */
+        .logo {
+            font-size: 2.8rem;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            background: linear-gradient(90deg, #2563eb, #60a5fa, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dark-toggle {
+            margin-top: 14px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            background: var(--bg-card);
+            color: var(--text-main);
+            box-shadow: var(--shadow-soft);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">FreshChain</div>
+    <p>Blockchain-Based Food Traceability System</p>
+    <button class="dark-toggle" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
+</header>
+
+<section class="card">
+    <h2>Wallet Connection</h2>
+    <button onclick="connectWallet()">Connect MetaMask</button>
+    <p id="account">Not connected</p>
+    <p id="roleInfo"></p>
+</section>
+
+<section class="card">
+    <h2>Available Batches</h2>
+    <button onclick="listBatches()">LIST BATCHES</button>
+    <pre id="batchList">No batches yet.</pre>
+</section>
+
+<section class="grid">
+
+    <!-- ADMIN -->
+    <div class="panel">
+        <h3>Admin</h3>
+        <p>Register supply-chain participants.</p>
+        <input id="adminAddr" placeholder="Wallet Address">
+        <select id="adminRole">
+            <option value="producer">Producer</option>
+            <option value="transporter">Transporter</option>
+            <option value="distributor">Distributor</option>
+            <option value="retailer">Retailer</option>
+        </select>
+        <button onclick="registerRole()">Register Role</button>
+    </div>
+
+    <!-- PRODUCER -->
+    <div class="panel">
+        <h3>Producer</h3>
+        <p>Create a new product batch.</p>
+        <input id="p_id" placeholder="Batch ID">
+        <input id="p_name" placeholder="Product Name">
+        <input id="p_qty" placeholder="Quantity">
+        <button onclick="createBatch()">Create Batch</button>
+
+        <hr>
+        <h4>Bonus: Signed QR</h4>
+        <button onclick="generateSignedQR()">Generate Signed QR</button>
+        <div id="qrBox"></div>
+    </div>
+
+    <!-- DISTRIBUTOR -->
+    <div class="panel">
+        <h3>Distributor</h3>
+        <p>Transfer batch ownership.</p>
+        <input id="d_id" placeholder="Batch ID">
+        <input id="d_to" placeholder="New Owner Address">
+        <button onclick="transferOwnership()">Transfer Ownership</button>
+    </div>
+
+    <!-- TRANSPORTER -->
+    <div class="panel">
+        <h3>Transporter</h3>
+        <p>Record transport conditions.</p>
+        <input id="t_id" placeholder="Batch ID">
+        <input id="temp" placeholder="Temperature (°C)">
+        <input id="hum" placeholder="Humidity (%)">
+        <input id="loc" placeholder="Location">
+        <button onclick="addSensorData()">Add Sensor Data</button>
+    </div>
+
+    <!-- RETAILER -->
+    <div class="panel">
+        <h3>Retailer</h3>
+        <p>Final inspection.</p>
+        <input id="r_id" placeholder="Batch ID">
+        <select id="passed">
+            <option value="true">Inspection Passed</option>
+            <option value="false">Inspection Failed</option>
+        </select>
+        <button onclick="inspectBatch()">Confirm Inspection</button>
+    </div>
+
+</section>
+
+<footer>
+    <p>Authorized Web3 dashboard. Customers use the public verification page.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.14.0/dist/ethers.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
