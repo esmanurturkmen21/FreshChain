@@ -515,8 +515,13 @@ async function connectWallet() {
 /* LOAD BATCHES */
 async function loadBatches() {
   try {
-    const readProvider = new ethers.JsonRpcProvider("https://rpc.sepolia.org");
-    const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readProvider);
+    if (!window.ethereum) {
+      alert("MetaMask is required to load batches.");
+      return;
+    }
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const readSigner = await provider.getSigner();
+    const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readSigner);
 
     const ids = await readContract.listBatches();
 
@@ -537,9 +542,6 @@ async function loadBatches() {
     alert("Load batches failed: " + err.message);
   }
 }
-
-
-
 
 /* ADMIN */
 async function registerRole() {
