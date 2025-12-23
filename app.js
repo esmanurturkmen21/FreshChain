@@ -513,32 +513,33 @@ async function connectWallet() {
 
 
 /* LOAD BATCHES */
-<script>
-async function loadBatchList() {
-    try {
-        const ids = await contract.listBatches();
-        batchId.innerHTML = "";
+async function loadBatchIds() {
+  try {
+    const ids = await contract.listBatches();
+    const select = document.getElementById("batchId");
 
-        if (ids.length === 0) {
-            batchId.innerHTML = "<option>No batches found</option>";
-            return;
-        }
+    ids.forEach(id => {
+      const opt = document.createElement("option");
+      opt.value = id.toString();
+      opt.textContent = id.toString();
+      select.appendChild(opt);
+    });
 
-        ids.forEach(id => {
-            const opt = document.createElement("option");
-            opt.value = id.toString();
-            opt.textContent = "Batch #" + id.toString();
-            batchId.appendChild(opt);
-        });
-
-    } catch (e) {
-        console.error(e);
-        batchId.innerHTML = "<option>Error loading batches</option>";
-    }
+  } catch (e) {
+    console.error("Batch list error:", e);
+  }
 }
 
-window.addEventListener("load", loadBatchList);
-</script>
+window.addEventListener("load", () => {
+  loadBatchIds();
+
+  const tid = new URLSearchParams(location.search).get("trackId");
+  if (tid) {
+    batchId.value = tid;
+    getHistory();
+  }
+});
+
 
 
 /* ADMIN */
