@@ -513,32 +513,31 @@ async function connectWallet() {
 
 
 /* LOAD BATCHES */
-async function loadBatchIds() {
+async function loadBatches() {
   try {
-    const ids = await contract.listBatches();
-    const select = document.getElementById("batchId");
+    const readProvider = new ethers.JsonRpcProvider("https://rpc.sepolia.org");
+    const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readProvider);
+
+    const ids = await readContract.listBatches();
+
+    const selects = [batchSelect, d_id, t_id, r_id];
+    selects.forEach(s => s.innerHTML = `<option value="">Select Batch</option>`);
 
     ids.forEach(id => {
-      const opt = document.createElement("option");
-      opt.value = id.toString();
-      opt.textContent = id.toString();
-      select.appendChild(opt);
+      selects.forEach(s => {
+        const o = document.createElement("option");
+        o.value = id.toString();
+        o.textContent = id.toString();
+        s.appendChild(o.cloneNode(true));
+      });
     });
 
-  } catch (e) {
-    console.error("Batch list error:", e);
+  } catch (err) {
+    console.error(err);
+    alert("Load batches failed: " + err.message);
   }
 }
 
-window.addEventListener("load", () => {
-  loadBatchIds();
-
-  const tid = new URLSearchParams(location.search).get("trackId");
-  if (tid) {
-    batchId.value = tid;
-    getHistory();
-  }
-});
 
 
 
