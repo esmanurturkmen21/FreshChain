@@ -623,7 +623,6 @@ async function generateSignedQR() {
     alert("QR generation failed: " + err.message);
   }
 }
-}
 window.addEventListener("load", async () => {
   const params = new URLSearchParams(window.location.search);
   const tid = params.get("trackId");
