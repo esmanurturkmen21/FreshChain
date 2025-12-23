@@ -525,7 +525,7 @@ async function loadBatches() {
 
     const ids = await readContract.listBatches();
 
-    const selects = [batchSelect, d_id, t_id, r_id];
+    const selects = [batchSelect, d_id, t_id, r_id, publicBatchSelect];
     selects.forEach(s => s.innerHTML = `<option value="">Select Batch</option>`);
 
     ids.forEach(id => {
