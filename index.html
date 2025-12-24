@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FreshChain</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FreshChain</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <header>
@@ -15,7 +14,6 @@
   <button onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
 </header>
 
-<!-- WALLET -->
 <section class="card">
   <h2>Wallet Connection</h2>
   <button onclick="connectWallet()">Connect MetaMask</button>
@@ -23,19 +21,14 @@
   <p id="roleInfo"></p>
 </section>
 
-<!-- BATCH LIST -->
 <section class="card">
   <h2>System Batches</h2>
   <button onclick="loadBatches()">Load Batches</button>
-  <select id="batchSelect">
-    <option value="">Select Batch</option>
-  </select>
+  <select id="batchSelect"></select>
 </section>
 
-<!-- PANELS -->
 <section class="grid">
 
-  <!-- ADMIN -->
   <div class="panel">
     <h3>Admin</h3>
     <input id="adminAddr" placeholder="Wallet Address">
@@ -48,7 +41,6 @@
     <button onclick="registerRole()">Register Role</button>
   </div>
 
-  <!-- PRODUCER -->
   <div class="panel">
     <h3>Producer</h3>
     <input id="p_id" placeholder="Batch ID">
@@ -62,7 +54,6 @@
     <div id="qrBox"></div>
   </div>
 
-  <!-- DISTRIBUTOR -->
   <div class="panel">
     <h3>Distributor</h3>
     <select id="d_id"></select>
@@ -70,7 +61,6 @@
     <button onclick="transferOwnership()">Transfer Ownership</button>
   </div>
 
-  <!-- TRANSPORTER -->
   <div class="panel">
     <h3>Transporter</h3>
     <select id="t_id"></select>
@@ -80,7 +70,6 @@
     <button onclick="addSensorData()">Add Sensor Data</button>
   </div>
 
-  <!-- RETAILER -->
   <div class="panel">
     <h3>Retailer</h3>
     <select id="r_id"></select>
@@ -93,7 +82,6 @@
 
 </section>
 
-  
 <footer>
   <p>FreshChain – Version 2 Final Implementation</p>
 </footer>
@@ -101,5 +89,6 @@
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.14.0/dist/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="app.js"></script>
+
 </body>
 </html>
