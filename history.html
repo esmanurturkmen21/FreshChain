@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FreshChain – Product History</title>
+
+<!-- SAME CSS AS MAIN APP -->
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -10,19 +13,33 @@
 
 <header>
   <h1>FreshChain</h1>
-  <p>Public Product Verification</p>
+  <p>Public Blockchain Product Verification</p>
 </header>
 
+<!-- PRODUCT SUMMARY -->
 <section class="card">
-  <h2>Product History</h2>
-  <div id="history">Loading...</div>
+  <h2>Product Summary</h2>
+  <div id="summary">Loading...</div>
+</section>
+
+<!-- SENSOR DATA -->
+<section class="card">
+  <h2>Transport Conditions</h2>
+  <div id="sensors">Loading...</div>
+</section>
+
+<!-- OWNERSHIP HISTORY -->
+<section class="card">
+  <h2>Ownership History</h2>
+  <div id="ownership">Loading...</div>
 </section>
 
 <footer>
-  <p>This page does not require MetaMask</p>
+  <p>This page is publicly accessible and does not require MetaMask.</p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.14.0/dist/ethers.umd.min.js"></script>
 <script src="history.js"></script>
+
 </body>
 </html>
