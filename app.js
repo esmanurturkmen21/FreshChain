@@ -597,24 +597,19 @@ function generateSignedQR() {
     return;
   }
 
-  const url =
-    window.location.origin +
-    window.location.pathname +
-    "?trackId=" +
-    p_id.value;
+  const HISTORY_URL =
+    "https://esmanurturkmen.github.io/freshchain/history.html";
+
+  const url = `${HISTORY_URL}?trackId=${p_id.value}`;
 
   qrBox.innerHTML = "";
-  new QRCode(qrBox, { text: url, width: 180, height: 180 });
+  new QRCode(qrBox, {
+    text: url,
+    width: 180,
+    height: 180
+  });
 }
 
-/* AUTO LOAD FROM QR */
-window.addEventListener("load", () => {
-  const tid = new URLSearchParams(window.location.search).get("trackId");
-  if (tid) {
-    publicTrackId.value = tid;
-    verifyBatch();
-  }
-});
 
 /* DARK MODE */
 function toggleDarkMode() {
