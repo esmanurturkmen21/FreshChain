@@ -517,66 +517,36 @@
 	}
 ];
 
-  // ⚠️ STABİL RPC (çok önemli)
-  const provider = new ethers.JsonRpcProvider(
-"https://rpc.ankr.com/eth_sepolia"
-  );
+  // ⚠️ MetaMask VARSA onu kullan, YOKSA read-only düşer
+  const provider = window.ethereum
+    ? new ethers.BrowserProvider(window.ethereum)
+    : null;
 
-  const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
-
-  const batchSelect = document.getElementById("batchSelect");
   const result = document.getElementById("result");
-  const btn = document.getElementById("btn");
 
-  // 🔹 LOAD BATCHES
-  async function loadBatches() {
-    try {
-      const ids = await contract.listBatches();
-      batchSelect.innerHTML =
-        '<option value="">Select Batch ID</option>';
-
-      ids.forEach(id => {
-        const opt = document.createElement("option");
-        opt.value = id.toString();
-        opt.textContent = id.toString();
-        batchSelect.appendChild(opt);
-      });
-    } catch (e) {
-      batchSelect.innerHTML =
-        '<option value="">Error loading batches</option>';
-      console.error("listBatches error:", e);
-    }
-  }
-
-  // 🔹 VERIFY
-  async function verify() {
-    const id = batchSelect.value;
-    if (!id) {
-      alert("Select a Batch ID first");
+  async function loadFromQR() {
+    const tid = new URLSearchParams(window.location.search).get("trackId");
+    if (!tid) {
+      result.textContent = "No Batch ID provided.";
       return;
     }
 
-    const data = await contract.getBatchHistory(id);
+    if (!provider) {
+      result.textContent = "Please open this page with MetaMask installed.";
+      return;
+    }
+
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
+    const data = await contract.getBatchHistory(tid);
+
     const replacer = (k, v) =>
       typeof v === "bigint" ? v.toString() : v;
 
     result.textContent = JSON.stringify(data, replacer, 2);
   }
 
-  btn.addEventListener("click", verify);
-
-  // 🔹 AUTO LOAD
-  window.addEventListener("load", async () => {
-    await loadBatches();
-
-    const tid = new URLSearchParams(window.location.search).get("trackId");
-    if (tid) {
-      batchSelect.value = tid;
-      verify();
-    }
-  });
+  loadFromQR();
 </script>
 
 </body>
 </html>
-
