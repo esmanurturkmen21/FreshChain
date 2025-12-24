@@ -485,6 +485,11 @@ const ABI = [
 
 /* WALLET */
 async function connectWallet() {
+  if (!window.ethereum) {
+    alert("MetaMask required");
+    return;
+  }
+
   provider = new ethers.BrowserProvider(window.ethereum);
   signer = await provider.getSigner();
   contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
@@ -493,54 +498,39 @@ async function connectWallet() {
   account.innerText = acc;
 
   const admin = await contract.owner();
-
   let role = "Unregistered / Customer";
 
-  if (acc.toLowerCase() === admin.toLowerCase()) {
-    role = "Administrator";
-  } else if (await contract.producers(acc)) {
-    role = "Producer";
-  } else if (await contract.distributors(acc)) {
-    role = "Distributor";
-  } else if (await contract.transporters(acc)) {
-    role = "Transporter";
-  } else if (await contract.retailers(acc)) {
-    role = "Retailer";
-  }
+  if (acc.toLowerCase() === admin.toLowerCase()) role = "Administrator";
+  else if (await contract.producers(acc)) role = "Producer";
+  else if (await contract.distributors(acc)) role = "Distributor";
+  else if (await contract.transporters(acc)) role = "Transporter";
+  else if (await contract.retailers(acc)) role = "Retailer";
 
-  roleInfo.innerText = `Role: ${role}`;
+  roleInfo.innerText = "Role: " + role;
 }
-
 
 /* LOAD BATCHES */
 async function loadBatches() {
-  try {
-    if (!window.ethereum) {
-      alert("MetaMask is required to load batches.");
-      return;
-    }
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const readSigner = await provider.getSigner();
-    const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, readSigner);
-
-    const ids = await readContract.listBatches();
-
-    const selects = [batchSelect, d_id, t_id, r_id, publicBatchSelect];
-    selects.forEach(s => s.innerHTML = `<option value="">Select Batch</option>`);
-
-    ids.forEach(id => {
-      selects.forEach(s => {
-        const o = document.createElement("option");
-        o.value = id.toString();
-        o.textContent = id.toString();
-        s.appendChild(o.cloneNode(true));
-      });
-    });
-
-  } catch (err) {
-    console.error(err);
-    alert("Load batches failed: " + err.message);
+  if (!contract) {
+    alert("Connect wallet first");
+    return;
   }
+
+  const ids = await contract.listBatches();
+  const selects = [batchSelect, d_id, t_id, r_id, publicBatchSelect];
+
+  selects.forEach(s => {
+    s.innerHTML = `<option value="">Select Batch ID</option>`;
+  });
+
+  ids.forEach(id => {
+    selects.forEach(s => {
+      const o = document.createElement("option");
+      o.value = id.toString();
+      o.textContent = id.toString();
+      s.appendChild(o.cloneNode(true));
+    });
+  });
 }
 
 /* ADMIN */
@@ -582,95 +572,47 @@ async function inspectBatch() {
 
 /* PUBLIC VERIFY */
 async function verifyBatch() {
-  try {
-    if (!window.ethereum) {
-      alert("MetaMask is required for reading blockchain data.");
-      return;
-    }
-
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
-    const id = publicBatchSelect.value;
-
-    if (!id) {
-      alert("Please select a Batch ID.");
-      return;
-    }
-
-    const data = await readContract.getBatchHistory(id);
-
-    const replacer = (k, v) =>
-      typeof v === "bigint" ? v.toString() : v;
-
-    result.innerText = JSON.stringify(data, replacer, 2);
-
-  } catch (err) {
-    console.error(err);
-    result.innerText = "ERROR: " + err.message;
+  if (!contract) {
+    alert("Connect wallet first");
+    return;
   }
+
+  const id = publicBatchSelect.value;
+  if (!id) {
+    alert("Please select a Batch ID");
+    return;
+  }
+
+  const data = await contract.getBatchHistory(id);
+  const replacer = (k, v) =>
+    typeof v === "bigint" ? v.toString() : v;
+
+  result.innerText = JSON.stringify(data, replacer, 2);
 }
 
-
-/* SIGNED QR */
-async function generateSignedQR() {
-  try {
-    if (!p_id.value) {
-      alert("Please enter Batch ID first.");
-      return;
-    }
-
-    // 🔴 SADECE TRACK ID
-    const url =
-      window.location.origin +
-      window.location.pathname +
-      "?trackId=" +
-      p_id.value;
-
-    qrBox.innerHTML = "";
-    new QRCode(qrBox, {
-      text: url,
-      width: 180,
-      height: 180
-    });
-
-  } catch (err) {
-    console.error(err);
-    alert("QR generation failed: " + err.message);
+/* QR – SIMPLE & SAFE (NO OVERFLOW) */
+function generateSignedQR() {
+  if (!p_id.value) {
+    alert("Enter Batch ID first");
+    return;
   }
+
+  const url =
+    window.location.origin +
+    window.location.pathname +
+    "?trackId=" +
+    p_id.value;
+
+  qrBox.innerHTML = "";
+  new QRCode(qrBox, { text: url, width: 180, height: 180 });
 }
 
-
-
-    // TRUE URL FOR GITHUB PAGES 
-    const url =
-      window.location.origin +
-      "/FreshChain/index.html" +
-      "?trackId=" +
-      p_id.value +
-      "&sig=" +
-      sig;
-
-    qrBox.innerHTML = "";
-    new QRCode(qrBox, {
-      text: url,
-      width: 180,
-      height: 180
-    });
-
-  } catch (err) {
-    console.error(err);
-    alert("QR generation failed: " + err.message);
-  }
-}
-window.addEventListener("load", async () => {
-  const params = new URLSearchParams(window.location.search);
-  const tid = params.get("trackId");
-
+/* AUTO LOAD FROM QR */
+window.addEventListener("load", () => {
+  const tid = new URLSearchParams(window.location.search).get("trackId");
   if (tid) {
     publicTrackId.value = tid;
-    await verifyBatch();
+    verifyBatch();
   }
 });
 
