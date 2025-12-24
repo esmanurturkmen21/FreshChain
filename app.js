@@ -582,26 +582,66 @@ async function inspectBatch() {
 
 /* PUBLIC VERIFY */
 async function verifyBatch() {
-  const data = await contract.getBatchHistory(publicTrackId.value);
-  const replacer = (k, v) => typeof v === "bigint" ? v.toString() : v;
-  result.innerText = JSON.stringify(data, replacer, 2);
+  try {
+    if (!window.ethereum) {
+      alert("MetaMask is required for reading blockchain data.");
+      return;
+    }
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const readContract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+    const id = publicBatchSelect.value;
+
+    if (!id) {
+      alert("Please select a Batch ID.");
+      return;
+    }
+
+    const data = await readContract.getBatchHistory(id);
+
+    const replacer = (k, v) =>
+      typeof v === "bigint" ? v.toString() : v;
+
+    result.innerText = JSON.stringify(data, replacer, 2);
+
+  } catch (err) {
+    console.error(err);
+    result.innerText = "ERROR: " + err.message;
+  }
 }
+
 
 /* SIGNED QR */
 async function generateSignedQR() {
   try {
-    if (!signer) {
-      alert("Please connect your wallet first.");
-      return;
-    }
-
     if (!p_id.value) {
       alert("Please enter Batch ID first.");
       return;
     }
 
-    const message = `FreshChain:${p_id.value}`;
-    const sig = await signer.signMessage(message);
+    // 🔴 SADECE TRACK ID
+    const url =
+      window.location.origin +
+      window.location.pathname +
+      "?trackId=" +
+      p_id.value;
+
+    qrBox.innerHTML = "";
+    new QRCode(qrBox, {
+      text: url,
+      width: 180,
+      height: 180
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert("QR generation failed: " + err.message);
+  }
+}
+
+
 
     // TRUE URL FOR GITHUB PAGES 
     const url =
