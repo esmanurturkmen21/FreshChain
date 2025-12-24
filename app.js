@@ -598,7 +598,7 @@ function generateSignedQR() {
   }
 
   const HISTORY_URL =
-    "https://esmanurturkmen21.github.io/freshchain/history.html";
+    "https://esmanurturkmen21.github.io/FreshChain/history.html";
 
   const url = `${HISTORY_URL}?trackId=${p_id.value}`;
 
