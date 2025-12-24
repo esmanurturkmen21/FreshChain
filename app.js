@@ -482,11 +482,13 @@ const ABI = [
 		"type": "function"
 	}
 ];
+// DOM ELEMENT REFERENCES (REQUIRED)
 const batchSelect = document.getElementById("batchSelect");
 const d_id = document.getElementById("d_id");
 const t_id = document.getElementById("t_id");
 const r_id = document.getElementById("r_id");
 const publicBatchSelect = document.getElementById("publicBatchSelect");
+
 
 /* WALLET */
 async function connectWallet() {
