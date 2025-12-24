@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>FreshChain – Public Product History</title>
+  <title>FreshChain – Public Product Verification</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -14,25 +14,29 @@
   <p>Public Blockchain Product Verification</p>
 </header>
 
+<!-- PUBLIC VERIFY -->
 <section class="card">
-  <input id="trackId" placeholder="Enter Batch ID" />
-  <button onclick="verify()">Get Blockchain History</button>
-</section>
+  <h2>Public Product Verification</h2>
 
-<section class="card">
-  <h2>Raw Blockchain Data</h2>
+  <select id="publicBatchSelect">
+    <option value="">Select Batch ID</option>
+  </select>
+
+  <button onclick="verifyBatch()">Get Blockchain History</button>
+
   <pre id="result">No data loaded.</pre>
 </section>
 
 <footer>
-  <p>This page is publicly accessible and does not require MetaMask.</p>
+  <p>FreshChain – Version 2 Final Implementation</p>
 </footer>
 
-<!-- ✅ MODULE SCRIPT (NO GLOBAL CONFLICT) -->
+<!-- ✅ READ-ONLY BLOCKCHAIN ACCESS -->
 <script type="module">
   import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.14.0/+esm";
 
   const CONTRACT_ADDRESS = "0x72C2beD81DA67915F553258776158D7cAFd37963";
+
   const ABI = [
 	{
 		"inputs": [],
@@ -514,32 +518,57 @@
 	}
 ];
 
-  const provider = new ethers.JsonRpcProvider("https://rpc.sepolia.org");
+  /* READ-ONLY PROVIDER (NO METAMASK) */
+  const provider = new ethers.JsonRpcProvider(
+    "https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+  );
+
   const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
 
-  async function verify() {
-    const id = document.getElementById("trackId").value;
+  const publicBatchSelect = document.getElementById("publicBatchSelect");
+  const result = document.getElementById("result");
+
+  /* LOAD BATCHES — PUBLIC */
+  async function loadBatches() {
+    const ids = await contract.listBatches();
+    publicBatchSelect.innerHTML =
+      '<option value="">Select Batch ID</option>';
+
+    ids.forEach(id => {
+      const o = document.createElement("option");
+      o.value = id.toString();
+      o.textContent = id.toString();
+      publicBatchSelect.appendChild(o);
+    });
+  }
+
+  /* PUBLIC VERIFY */
+  async function verifyBatch() {
+    const id = publicBatchSelect.value;
     if (!id) {
-      alert("Enter Batch ID");
+      alert("Please select a Batch ID");
       return;
     }
 
     const data = await contract.getBatchHistory(id);
-    const replacer = (k, v) => typeof v === "bigint" ? v.toString() : v;
+    const replacer = (k, v) =>
+      typeof v === "bigint" ? v.toString() : v;
 
-    document.getElementById("result").innerText =
-      JSON.stringify(data, replacer, 2);
+    result.textContent = JSON.stringify(data, replacer, 2);
   }
 
-  window.verify = verify;
+  /* AUTO LOAD FROM QR */
+  window.addEventListener("load", async () => {
+    await loadBatches();
 
-  window.addEventListener("load", () => {
     const tid = new URLSearchParams(window.location.search).get("trackId");
     if (tid) {
-      document.getElementById("trackId").value = tid;
-      verify();
+      publicBatchSelect.value = tid;
+      verifyBatch();
     }
   });
+
+  window.verifyBatch = verifyBatch;
 </script>
 
 </body>
