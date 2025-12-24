@@ -507,3 +507,4 @@ async function loadHistory() {
 }
 
 loadHistory();
+
