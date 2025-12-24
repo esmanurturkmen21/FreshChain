@@ -1,44 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FreshChain – Product History</title>
-
-<!-- SAME CSS AS MAIN APP -->
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>FreshChain – Public Product History</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
-<body><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>FreshChain – Public History</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-</head>
 <body>
 
 <header>
-  <h1>Product History</h1>
-  <p>Public Blockchain Verification</p>
+  <h1>FreshChain</h1>
+  <p>Public Blockchain Product Verification</p>
 </header>
 
 <section class="card">
-  <input id="trackId" placeholder="Enter Batch ID">
+  <input id="trackId" placeholder="Enter Batch ID" />
   <button onclick="verify()">Get Blockchain History</button>
+</section>
+
+<section class="card">
+  <h2>Raw Blockchain Data</h2>
   <pre id="result">No data loaded.</pre>
 </section>
 
 <footer>
-  <p>FreshChain – Public Access (No Wallet Required)</p>
+  <p>This page is publicly accessible and does not require MetaMask.</p>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.14.0/dist/ethers.umd.min.js"></script>
+<!-- ✅ MODULE SCRIPT (NO GLOBAL CONFLICT) -->
+<script type="module">
+  import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.14.0/+esm";
 
-<script>
-const CONTRACT_ADDRESS = "0x72C2beD81DA67915F553258776158D7cAFd37963";
-const ABI = [
+  const CONTRACT_ADDRESS = "0x72C2beD81DA67915F553258776158D7cAFd37963";
+  const ABI = [
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -519,61 +514,33 @@ const ABI = [
 	}
 ];
 
-const provider = new ethers.JsonRpcProvider("https://rpc.sepolia.org");
-const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
+  const provider = new ethers.JsonRpcProvider("https://rpc.sepolia.org");
+  const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
 
-async function verify() {
-  const id = trackId.value;
-  if (!id) return alert("Enter Batch ID");
+  async function verify() {
+    const id = document.getElementById("trackId").value;
+    if (!id) {
+      alert("Enter Batch ID");
+      return;
+    }
 
-  const data = await contract.getBatchHistory(id);
-  const replacer = (k, v) => typeof v === "bigint" ? v.toString() : v;
-  result.innerText = JSON.stringify(data, replacer, 2);
-}
+    const data = await contract.getBatchHistory(id);
+    const replacer = (k, v) => typeof v === "bigint" ? v.toString() : v;
 
-window.addEventListener("load", () => {
-  const tid = new URLSearchParams(window.location.search).get("trackId");
-  if (tid) {
-    trackId.value = tid;
-    verify();
+    document.getElementById("result").innerText =
+      JSON.stringify(data, replacer, 2);
   }
-});
+
+  window.verify = verify;
+
+  window.addEventListener("load", () => {
+    const tid = new URLSearchParams(window.location.search).get("trackId");
+    if (tid) {
+      document.getElementById("trackId").value = tid;
+      verify();
+    }
+  });
 </script>
 
 </body>
 </html>
-
-
-<header>
-  <h1>FreshChain</h1>
-  <p>Public Blockchain Product Verification</p>
-</header>
-
-<!-- PRODUCT SUMMARY -->
-<section class="card">
-  <h2>Product Summary</h2>
-  <div id="summary">Loading...</div>
-</section>
-
-<!-- SENSOR DATA -->
-<section class="card">
-  <h2>Transport Conditions</h2>
-  <div id="sensors">Loading...</div>
-</section>
-
-<!-- OWNERSHIP HISTORY -->
-<section class="card">
-  <h2>Ownership History</h2>
-  <div id="ownership">Loading...</div>
-</section>
-
-<footer>
-  <p>This page is publicly accessible and does not require MetaMask.</p>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.14.0/dist/ethers.umd.min.js"></script>
-<script src="history.js"></script>
-
-</body>
-</html>
-
