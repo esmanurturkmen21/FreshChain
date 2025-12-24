@@ -565,12 +565,18 @@ function generateSignedQR() {
     alert("Enter Batch ID first");
     return;
   }
-const basePath = window.location.pathname.replace("index.html", "");
+
   const url =
-    window.location.origin +
-    basePath +
-    "history.html?trackId=" +
-    p_id.value;  
+    "https://esmanurturkmen21.github.io/FreshChain/history.html?trackId=" +
+    p_id.value;
+
+  qrBox.innerHTML = "";
+  new QRCode(qrBox, {
+    text: url,
+    width: 180,
+    height: 180
+  });
+} 
 
   qrBox.innerHTML = "";
   new QRCode(qrBox, {
