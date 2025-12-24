@@ -482,15 +482,7 @@ const ABI = [
 		"type": "function"
 	}
 ];
-// DOM ELEMENT REFERENCES (REQUIRED)
-const batchSelect = document.getElementById("batchSelect");
-const d_id = document.getElementById("d_id");
-const t_id = document.getElementById("t_id");
-const r_id = document.getElementById("r_id");
-const publicBatchSelect = document.getElementById("publicBatchSelect");
 
-
-/* WALLET */
 async function connectWallet() {
   if (!window.ethereum) {
     alert("MetaMask required");
@@ -516,18 +508,12 @@ async function connectWallet() {
   roleInfo.innerText = "Role: " + role;
 }
 
-/* LOAD BATCHES */
 async function loadBatches() {
-  if (!contract) {
-    alert("Connect wallet first");
-    return;
-  }
-
   const ids = await contract.listBatches();
-  const selects = [batchSelect, d_id, t_id, r_id, publicBatchSelect];
+  const selects = [batchSelect, d_id, t_id, r_id];
 
   selects.forEach(s => {
-    s.innerHTML = `<option value="">Select Batch ID</option>`;
+    s.innerHTML = '<option value="">Select Batch</option>';
   });
 
   ids.forEach(id => {
@@ -540,7 +526,6 @@ async function loadBatches() {
   });
 }
 
-/* ADMIN */
 async function registerRole() {
   const map = {
     producer: contract.registerProducer,
@@ -548,66 +533,43 @@ async function registerRole() {
     distributor: contract.registerDistributor,
     retailer: contract.registerRetailer
   };
+
   await (await map[adminRole.value](adminAddr.value)).wait();
   alert("Role registered");
 }
 
-/* PRODUCER */
 async function createBatch() {
   await (await contract.createBatch(p_id.value, p_name.value, p_qty.value)).wait();
   alert("Batch created");
   loadBatches();
 }
 
-/* DISTRIBUTOR */
 async function transferOwnership() {
   await (await contract.transferOwnership(d_id.value, d_to.value)).wait();
   alert("Ownership transferred");
 }
 
-/* TRANSPORTER */
 async function addSensorData() {
   await (await contract.addSensorData(t_id.value, temp.value, hum.value, loc.value)).wait();
   alert("Sensor data recorded");
 }
 
-/* RETAILER */
 async function inspectBatch() {
   await (await contract.inspectBatch(r_id.value, passed.value === "true")).wait();
   alert("Inspection completed");
 }
 
-/* PUBLIC VERIFY */
-async function verifyBatch() {
-  if (!contract) {
-    alert("Connect wallet first");
-    return;
-  }
-
-  const id = publicBatchSelect.value;
-  if (!id) {
-    alert("Please select a Batch ID");
-    return;
-  }
-
-  const data = await contract.getBatchHistory(id);
-  const replacer = (k, v) =>
-    typeof v === "bigint" ? v.toString() : v;
-
-  result.innerText = JSON.stringify(data, replacer, 2);
-}
-
-/* QR – SIMPLE & SAFE (NO OVERFLOW) */
+/* QR → history.html */
 function generateSignedQR() {
   if (!p_id.value) {
     alert("Enter Batch ID first");
     return;
   }
 
-  const HISTORY_URL =
-    "https://esmanurturkmen21.github.io/FreshChain/history.html";
-
-  const url = `${HISTORY_URL}?trackId=${p_id.value}`;
+  const url =
+    window.location.origin +
+    "/history.html?trackId=" +
+    p_id.value;
 
   qrBox.innerHTML = "";
   new QRCode(qrBox, {
@@ -617,8 +579,6 @@ function generateSignedQR() {
   });
 }
 
-
-/* DARK MODE */
 function toggleDarkMode() {
   document.body.classList.toggle("dark");
 }
