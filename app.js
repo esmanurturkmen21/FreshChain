@@ -565,11 +565,12 @@ function generateSignedQR() {
     alert("Enter Batch ID first");
     return;
   }
-
+const basePath = window.location.pathname.replace("index.html", "");
   const url =
     window.location.origin +
-    "/history.html?trackId=" +
-    p_id.value;
+    basePath +
+    "history.html?trackId=" +
+    p_id.value;  
 
   qrBox.innerHTML = "";
   new QRCode(qrBox, {
